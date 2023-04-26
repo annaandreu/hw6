@@ -449,6 +449,9 @@ template<typename K, typename V, typename Prober, typename Hash, typename KEqual
 void HashTable<K,V,Prober,Hash,KEqual>::resize()
 {
     mIndex_++; 
+		if(mIndex_ >= 28){ // think this is why I was failing valgrind 
+			throw std:: logic_error("No more capacities!");
+		}
 
 		std::vector<HashItem*> old_table = this -> table_;
     
