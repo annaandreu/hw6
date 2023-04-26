@@ -96,4 +96,22 @@ bool boggleHelper(const std::set<std::string>& dict, const std::set<std::string>
 {
 //add your solution here!
 
+if(r < board.size() && c < board.size()){ // if in bounds	 
+	std::string potential_word = word + board[r][c]; 
+
+	// CASE 1- can can continue adding letters - recurse on 
+	if(prefix.find(potential_word) != prefix.end() && boggleHelper(dict, prefix, board, potential_word, result, r + dr, c + dc, dr, dc)){
+	//if(boggleHelper(dict, prefix, board, potential_word, result, r + dr, c + dc, dr, dc)){
+		return true; 
+	}
+	//CASE2 - if potential_word is a valid word,, insert to result
+	 else if(dict.find(potential_word)!= dict.end()){
+		result.insert(potential_word);
+    return true;
+	 }
+	//}
+	
+}
+return false; 
+
 }
