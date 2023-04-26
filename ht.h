@@ -306,7 +306,7 @@ HashTable<K,V,Prober,Hash,KEqual>::HashTable(
 	
 	alpha = resizeAlpha; 
 	curr_items = 0;
-    total_items = 0;
+  total_items = 0;
 }
 
 // To be completed- DONE
@@ -344,23 +344,25 @@ template<typename K, typename V, typename Prober, typename Hash, typename KEqual
 void HashTable<K,V,Prober,Hash,KEqual>::insert(const ItemType& p)
 {
 	// BC- if threshhold bigger than loading factor = RESIZE
-    if(alpha <= (total_items / CAPACITIES[mIndex_])){
+    if(alpha <= (total_items / table_.size())){
         resize();
+				//insert(p);
 	}
 //if key already in table, update w correct value
     if(find(p.first)!= nullptr){ 
         find(p.first) -> second = p.second;
     }
     else{ //key is not in table,, need to probe
-        HASH_INDEX_T find_loc = probe(p.first);
+        HASH_INDEX_T find_loc = this -> probe(p.first);
         if(find_loc == npos){  // expection- no empty spot is found
-            throw std::logic_error("No free location is available");
+      		throw(std::logic_error("No free location is available"));
         }
         // if loc is found add new item and update count 
-        table_[find_loc] = new HashItem(p);
-        curr_items++;
-    // made total counter to pass resize stress test
-        total_items++; 
+					table_[find_loc] = new HashItem(p);
+					curr_items++;
+				// made total counter to pass resize stress test
+					total_items++; 
+				
     }
 
 
@@ -450,7 +452,7 @@ void HashTable<K,V,Prober,Hash,KEqual>::resize()
 {
     mIndex_++; 
 		if(mIndex_ >= 28){ // think this is why I was failing valgrind 
-			throw std:: logic_error("No more capacities!");
+			throw(std:: logic_error("No more capacities!"));
 		}
 
 		std::vector<HashItem*> old_table = this -> table_;
@@ -462,16 +464,16 @@ void HashTable<K,V,Prober,Hash,KEqual>::resize()
 //rehash old hash items into new table 
 		for(unsigned int i = 0; i < old_table.size(); i++){
 			if(old_table[i] != nullptr && old_table[i] -> deleted == true){ // OLD & DELETED
-                //curr_items = curr_items - 1; WASNT WORKING
-                total_items = curr_items; 
-                //had to make total items counter for stress test to work
-                delete old_table[i]; // REMOVE 
+				//curr_items = curr_items - 1; WASNT WORKING
+				delete old_table[i]; // REMOVE 
 			}
 			else if(old_table[i] != nullptr && old_table[i] -> deleted == false){ // OLD & NOT DELETED
 				HashItem* new_item = new HashItem(old_table[i] -> item);
-				table_[probe(old_table[i] -> item.first)] = new_item; // PROBE AND ADD TO NEW
+				this -> table_[probe(old_table[i] -> item.first)] = new_item; // PROBE AND ADD TO NEW
+				delete old_table[i];
 			}
 		}
+		total_items = curr_items; //had to make total items counter for stress test to work
     
 }
 
